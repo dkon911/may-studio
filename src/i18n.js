@@ -1,0 +1,33 @@
+export const translations = {
+  vi: {
+    home: "Trang chủ",
+    aboutUs: "Về chúng tôi",
+    portfolio: "Bộ sưu tập",
+    welcome: "Chào mừng đến với Studio của chúng tôi",
+    baby: "Ảnh em bé",
+    newborn: "Ảnh sơ sinh",
+    family: "Ảnh gia đình",
+    aboutStudio: "Studio chúng tôi chuyên chụp ảnh em bé, sơ sinh và gia đình với phong cách độc đáo và sáng tạo.",
+    contactUs: "Liên hệ với chúng tôi",
+    name: "Họ và tên",
+    email: "Email",
+    message: "Tin nhắn",
+    send: "Gửi",
+  },
+  en: {
+    home: "Home",
+    aboutUs: "About Us",
+    portfolio: "Portfolio",
+    welcome: "Welcome to Our Studio",
+    baby: "Baby Photography",
+    newborn: "Newborn Photography",
+    family: "Family Photography",
+    aboutStudio: "Our studio specializes in baby, newborn, and family photography with a unique and creative style.",
+    contactUs: "Contact Us",
+    name: "Full Name",
+    email: "Email",
+    message: "Message",
+    send: "Send",
+  },
+}
+
