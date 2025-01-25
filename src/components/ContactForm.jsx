@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useLanguage } from "../LanguageContext";
 import { translations } from "../i18n";
+import emailjs from '@emailjs/browser';
 
 const ContactForm = () => {
   const { language } = useLanguage();
@@ -24,16 +25,24 @@ const ContactForm = () => {
     e.preventDefault();
     
     try {
-      // Form sẽ được Netlify xử lý tự động
-      await fetch("/", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams(formData).toString(),
-      });
+      // Thay thế các giá trị này từ tài khoản EmailJS của bạn
+      const serviceId = 'service_73dhknp';
+      const templateId = 'template_ckis47t';
+      const publicKey = 'gwK4ALM44kQQkt5fB';
+
+      const templateParams = {
+        from_name: formData.name,
+        reply_to: formData.email,
+        from_email: formData.email,
+        message: formData.message,
+        to_email: 'congntdgcd210309@fpt.edu.vn',
+        subject: `Contact from ${formData.name} (${formData.email})`
+      };
+
+      await emailjs.send(serviceId, templateId, templateParams, publicKey);
       
       alert(t.emailSentSuccess || "Message sent successfully!");
       
-      // Reset form
       setFormData({
         name: '',
         email: '',
@@ -51,22 +60,11 @@ const ContactForm = () => {
         <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8">
           {t.contactUs}
         </h2>
+        
         <form 
           className="max-w-lg mx-auto" 
           onSubmit={handleSubmit}
-          name="contact" // Tên form cho Netlify
-          method="POST" 
-          data-netlify="true" // Kích hoạt Netlify Forms
-          netlify-honeypot="bot-field" // Chống spam
         >
-          {/* Hidden input cho Netlify Forms */}
-          <input type="hidden" name="form-name" value="contact" />
-          <p className="hidden">
-            <label>
-              Don't fill this out if you're human: <input name="bot-field" />
-            </label>
-          </p>
-
           <div className="mb-4">
             <label
               htmlFor="name"
