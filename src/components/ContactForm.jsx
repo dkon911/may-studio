@@ -1,31 +1,38 @@
-import React, { useState } from "react";
-import { useLanguage } from "../LanguageContext";
-import { translations } from "../i18n";
-import emailjs from '@emailjs/browser';
+import React, { useState } from "react"
+import { useLanguage } from "../LanguageContext"
+import { translations } from "../i18n"
+import emailjs from "@emailjs/browser"
+import Notification from "./Notification"
 
 const ContactForm = () => {
-  const { language } = useLanguage();
-  const t = translations[language];
+  const { language } = useLanguage()
+  const t = translations[language]
 
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
-  });
+    name: "",
+    email: "",
+    message: "",
+  })
+
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: "",
+    type: "success",
+  })
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevState => ({
+    const { name, value } = e.target
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: value
-    }));
-  };
+      [name]: value,
+    }))
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
+    e.preventDefault()
+
     try {
-      // Thay thế các giá trị này từ tài khoản EmailJS của bạn
+      // Replace these values with your EmailJS account details
       const serviceId = 'service_73dhknp';
       const templateId = 'template_ckis47t';
       const publicKey = 'gwK4ALM44kQQkt5fB';
@@ -35,41 +42,45 @@ const ContactForm = () => {
         reply_to: formData.email,
         from_email: formData.email,
         message: formData.message,
-        to_email: 'congntdgcd210309@fpt.edu.vn',
-        subject: `Contact from ${formData.name} (${formData.email})`
-      };
+        to_email: "congntdgcd210309@fpt.edu.vn",
+        subject: `Contact from ${formData.name} (${formData.email})`,
+      }
 
-      await emailjs.send(serviceId, templateId, templateParams, publicKey);
-      
-      alert(t.emailSentSuccess || "Message sent successfully!");
-      
+      await emailjs.send(serviceId, templateId, templateParams, publicKey)
+
+      setNotification({
+        isVisible: true,
+        message: t.emailSentSuccess || "Message sent successfully!",
+        type: "success",
+      })
+
       setFormData({
-        name: '',
-        email: '',
-        message: ''
-      });
+        name: "",
+        email: "",
+        message: "",
+      })
     } catch (error) {
-      console.error('Error sending message:', error);
-      alert(t.emailSentError || "Error sending message. Please try again.");
+      console.error("Error sending message:", error)
+      setNotification({
+        isVisible: true,
+        message: t.emailSentError || "Error sending message. Please try again.",
+        type: "error",
+      })
     }
-  };
+  }
+
+  const closeNotification = () => {
+    setNotification((prevState) => ({ ...prevState, isVisible: false }))
+  }
 
   return (
     <section className="py-8 md:py-12">
       <div className="container mx-auto px-4">
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8">
-          {t.contactUs}
-        </h2>
-        
-        <form 
-          className="max-w-lg mx-auto" 
-          onSubmit={handleSubmit}
-        >
+        <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8">{t.contactUs}</h2>
+
+        <form className="max-w-lg mx-auto" onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label
-              htmlFor="name"
-              className="block text-gray-700 font-bold mb-2"
-            >
+            <label htmlFor="name" className="block text-gray-700 font-bold mb-2">
               {t.name}
             </label>
             <input
@@ -83,10 +94,7 @@ const ContactForm = () => {
             />
           </div>
           <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-gray-700 font-bold mb-2"
-            >
+            <label htmlFor="email" className="block text-gray-700 font-bold mb-2">
               {t.email}
             </label>
             <input
@@ -100,10 +108,7 @@ const ContactForm = () => {
             />
           </div>
           <div className="mb-4">
-            <label
-              htmlFor="message"
-              className="block text-gray-700 font-bold mb-2"
-            >
+            <label htmlFor="message" className="block text-gray-700 font-bold mb-2">
               {t.message}
             </label>
             <textarea
@@ -124,8 +129,15 @@ const ContactForm = () => {
           </button>
         </form>
       </div>
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        isVisible={notification.isVisible}
+        onClose={closeNotification}
+      />
     </section>
-  );
-};
+  )
+}
 
-export default ContactForm;
+export default ContactForm
+
