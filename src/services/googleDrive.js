@@ -1,51 +1,50 @@
-import { GoogleAuth } from 'google-auth-library';
+import axios from 'axios';
 
-class GoogleDriveService {
-  constructor() {
-    this.auth = null;
-    this.drive = null;
+const API_KEY = import.meta.env.VITE_GOOGLE_DRIVE_API_KEY;
+const FOLDER_ID = import.meta.env.VITE_GOOGLE_DRIVE_FOLDER_ID;
+
+const BASE_URL = 'https://www.googleapis.com/drive/v3/files';
+
+/**
+ * Fetches a list of image files from a specific Google Drive folder.
+ * The folder must be shared publicly ("Anyone with the link").
+ *
+ * @returns {Promise<Array<{id: string, name: string, url: string}>>} A promise that resolves to an array of image objects.
+ */
+export const getImagesFromDrive = async () => {
+  if (!API_KEY || !FOLDER_ID) {
+    console.error('Google Drive API Key or Folder ID is not defined in .env file.');
+    return [];
   }
 
-  async initialize() {
-    try {
-      // Khởi tạo Google Auth với service account
-      this.auth = new GoogleAuth({
-        keyFile: process.env.GOOGLE_SERVICE_ACCOUNT_KEY,
-        scopes: ['https://www.googleapis.com/auth/drive.readonly'],
-      });
+  // Updated fields to include thumbnailLink for a reliable image source
+  const url = `${BASE_URL}?q='${FOLDER_ID}'+in+parents+and+mimeType+contains+'image/'&key=${API_KEY}&fields=files(id,name,thumbnailLink)`;
 
-      const { google } = await import('googleapis');
-      this.drive = google.drive({ version: 'v3', auth: this.auth });
-    } catch (error) {
-      console.error('Lỗi khởi tạo Google Drive:', error);
-    }
-  }
+  try {
+    const response = await axios.get(url);
+    const files = response.data.files || [];
 
-  async getImageUrls(folderId) {
-    try {
-      if (!this.drive) await this.initialize();
-
-      const response = await this.drive.files.list({
-        q: `'${folderId}' in parents and mimeType contains 'image/'`,
-        fields: 'files(id, name, webViewLink, webContentLink)',
-      });
-
-      return response.data.files.map(file => ({
+    // Transform the file data to a more usable format
+    const imageList = files.map(file => {
+      // The thumbnailLink is a reliable source for the image.
+      // We can remove the size parameter (=s220) to get a larger version.
+      const imageUrl = file.thumbnailLink ? file.thumbnailLink.replace(/=s\d+$/, "=s1600") : '';
+      return {
         id: file.id,
         name: file.name,
-        url: `https://drive.google.com/uc?id=${file.id}`,
-        viewLink: file.webViewLink
-      }));
-    } catch (error) {
-      console.error('Lỗi lấy danh sách ảnh từ Google Drive:', error);
-      return [];
+        url: imageUrl,
+      };
+    });
+
+    return imageList;
+  } catch (error) {
+    console.error('Error fetching images from Google Drive:', error.response ? error.response.data : error.message);
+    // Handle specific API errors, e.g., API key invalid, folder not found, etc.
+    if (error.response && error.response.data.error) {
+      const apiError = error.response.data.error;
+      console.error(`API Error (${apiError.code}): ${apiError.message}`);
+      // You could show a specific message to the user here
     }
+    return [];
   }
-
-  // Tạo URL public cho ảnh
-  getPublicImageUrl(fileId) {
-    return `https://drive.google.com/uc?id=${fileId}`;
-  }
-}
-
-export default new GoogleDriveService();
+};

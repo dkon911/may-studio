@@ -1,40 +1,69 @@
+import React, { useState, useEffect } from "react"
+import { getImagesFromDrive } from "@/services/googleDrive"
+import { useLanguage } from "@/contexts/LanguageContext"
+import { translations } from "@/i18n"
+import { Loader2 } from "lucide-react" // Loading spinner icon
 import { useTranslation } from "react-i18next"
 
 const PortfolioPage = () => {
-  const { t } = useTranslation()
+  const { language } = useLanguage()
+  const t = translations[language]
+  const { t: i18nT } = useTranslation()
+  const [images, setImages] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const portfolioItems = [
-    { category: "baby", images: [1, 2, 3, 4] },
-    { category: "newborn", images: [1, 2, 3, 4] },
-    { category: "family", images: [1, 2, 3, 4] },
-  ]
+  useEffect(() => {
+    const fetchImages = async () => {
+      setLoading(true)
+      const imageList = await getImagesFromDrive()
+      setImages(imageList)
+      setLoading(false)
+    }
+
+    fetchImages()
+  }, [])
 
   return (
     <div className="py-12 md:py-16">
       <div className="container mx-auto px-4">
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-playfair font-bold text-center mb-12">{t("portfolio")}</h1>
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-playfair font-bold text-center mb-12">
+          {i18nT("portfolio")}
+        </h1>
 
-        {portfolioItems.map((item) => (
-          <div key={item.category} className="mb-12">
-            <h2 className="text-2xl md:text-3xl font-playfair font-bold mb-6">{t(item.category)}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {item.images.map((image, index) => (
-                <div key={index} className="relative overflow-hidden group">
-                  <img
-                    src={`/placeholder.svg?height=400&width=400&text=${item.category}${image}`}
-                    alt={`${t(item.category)} ${image}`}
-                    className="w-full h-64 object-cover transition-transform duration-300 transform group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button className="bg-white text-gray-800 px-4 py-2 rounded-full hover:bg-gray-200 transition-colors duration-300">
-                      {t("viewLarge")}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <p className="ml-4 text-lg">{t.loadingImages}...</p>
           </div>
-        ))}
+        ) : images.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {images.map((image) => (
+              <div
+                key={image.id}
+                className="relative overflow-hidden group rounded-lg shadow-md"
+              >
+                <img
+                  src={image.url}
+                  alt={image.name}
+                  className="w-full h-64 object-cover transition-transform duration-300 transform group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  {/* Future feature: Open a lightbox/modal on click */}
+                  <p className="text-white text-center p-2">{image.name}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <p className="text-xl text-muted-foreground">
+              {t.noImagesFound}
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t.noImagesFoundDesc}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
