@@ -1,9 +1,7 @@
-import React, { useState } from "react"
+import React from "react"
 import { Link } from "react-router-dom"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { translations } from "@/i18n"
 import { Menu, Globe } from "lucide-react"
-import MobileMenu from "@/components/layout/MobileMenu"
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -19,16 +17,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 
-const Header = () => {
+const Header = ({ onMenuOpen, navLinks }) => {
   const { language, setLanguage } = useLanguage()
-  const t = translations[language]
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-
-  const navLinks = [
-    { href: "/", label: t.home },
-    { href: "/about", label: t.aboutUs },
-    { href: "/portfolio", label: t.portfolio },
-  ]
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -72,18 +62,13 @@ const Header = () => {
 
           <button
             className="md:hidden"
-            onClick={() => setIsMobileMenuOpen(true)}
+            onClick={onMenuOpen} // Use the prop to open the menu
           >
             <Menu className="h-6 w-6" />
             <span className="sr-only">Open mobile menu</span>
           </button>
         </div>
       </div>
-      <MobileMenu
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-        navLinks={navLinks}
-      />
     </header>
   )
 }
