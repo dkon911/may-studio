@@ -2,8 +2,8 @@ import React from "react"
 import Slider from "react-slick"
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
-import { useLanguage } from "../LanguageContext"
-import { translations } from "../i18n"
+import { useLanguage } from "@/contexts/LanguageContext"
+import { translations } from "@/i18n"
 
 const Welcome = () => {
   const { language } = useLanguage()

@@ -1,6 +1,6 @@
 import React from "react"
-import { useLanguage } from "../LanguageContext"
-import { translations } from "../i18n"
+import { useLanguage } from "@/contexts/LanguageContext"
+import { translations } from "@/i18n"
 
 const About = () => {
   const { language } = useLanguage()
@@ -17,4 +17,3 @@ const About = () => {
 }
 
 export default About
-

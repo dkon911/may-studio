@@ -1,8 +1,8 @@
 import React, { useState } from "react"
-import { useLanguage } from "../LanguageContext"
-import { translations } from "../i18n"
+import { useLanguage } from "@/contexts/LanguageContext"
+import { translations } from "@/i18n"
 import emailjs from "@emailjs/browser"
-import Notification from "./Notification"
+import Notification from "@/components/Notification"
 
 const ContactForm = () => {
   const { language } = useLanguage()
@@ -107,37 +107,39 @@ const ContactForm = () => {
               required
             />
           </div>
-          <div className="mb-4">
+          <div className="mb-6">
             <label htmlFor="message" className="block text-gray-700 font-bold mb-2">
               {t.message}
             </label>
             <textarea
               id="message"
               name="message"
+              rows="4"
               value={formData.message}
               onChange={handleChange}
-              rows="4"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             ></textarea>
           </div>
-          <button
-            type="submit"
-            className="w-full md:w-auto bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition-colors"
-          >
-            {t.send}
-          </button>
+          <div className="text-center">
+            <button
+              type="submit"
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-300"
+            >
+              {t.sendMessage}
+            </button>
+          </div>
         </form>
       </div>
-      <Notification
-        message={notification.message}
-        type={notification.type}
-        isVisible={notification.isVisible}
-        onClose={closeNotification}
-      />
+      {notification.isVisible && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={closeNotification}
+        />
+      )}
     </section>
   )
 }
 
 export default ContactForm
-

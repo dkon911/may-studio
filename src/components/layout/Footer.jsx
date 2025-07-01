@@ -1,7 +1,7 @@
 import React from "react"
 import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa"
-import { useLanguage } from "../LanguageContext"
-import { translations } from "../i18n"
+import { useLanguage } from "@/contexts/LanguageContext"
+import { translations } from "@/i18n"
 
 const Footer = () => {
   const { language } = useLanguage()
@@ -24,12 +24,12 @@ const Footer = () => {
                   <FaFacebook size={24} />
                 </a>
               </li>
-              {/* <li>
+               <li>
                 <a href="#" className="hover:text-gray-400 transition-colors">
                   <FaInstagram size={24} />
                 </a>
               </li>
-              <li>
+              {/*<li>
                 <a href="#" className="hover:text-gray-400 transition-colors">
                   <FaTwitter size={24} />
                 </a>
@@ -47,4 +47,3 @@ const Footer = () => {
 
 export default Footer
 
-  
