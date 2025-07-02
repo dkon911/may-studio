@@ -29,7 +29,7 @@ const Header = ({ onMenuOpen, navLinks }) => {
         <div className="flex items-center">
           <Link to="/" className="mr-6 flex items-center space-x-2">
             {/* You can replace this with an SVG logo */}
-            <span className="font-bold text-3xl font-serif">May Studio</span>
+            <span className="font-bold text-3xl font-serif">May Studio.</span>
           </Link>
 
           <NavigationMenu className="hidden md:flex">

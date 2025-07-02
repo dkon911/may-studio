@@ -1,9 +1,8 @@
 import React, { useState } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { useNotification } from "@/contexts/NotificationContext" // Import the hook
+import useNotificationStore from "@/stores/notificationStore" // Import the Zustand store
 import { translations } from "@/i18n"
 import emailjs from "@emailjs/browser"
-// Notification component is no longer needed here
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,7 +12,7 @@ import { Loader2 } from "lucide-react"
 const ContactForm = () => {
   const { language } = useLanguage()
   const t = translations[language]
-  const { showNotification } = useNotification() // Use the notification hook
+  const showNotification = useNotificationStore((state) => state.showNotification) // Get the action from the store
 
   const [formData, setFormData] = useState({
     name: "",
@@ -21,14 +20,6 @@ const ContactForm = () => {
     message: "",
   })
   const [isLoading, setIsLoading] = useState(false)
-  // Remove local notification state
-  /*
-  const [notification, setNotification] = useState({
-    isVisible: false,
-    message: "",
-    type: "success",
-  })
-  */
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -48,7 +39,6 @@ const ContactForm = () => {
 
     if (!serviceId || !templateId || !publicKey) {
         console.error("EmailJS environment variables are not set!");
-        // Use the global notification
         showNotification("Email configuration is missing. Please contact support.", "error");
         setIsLoading(false);
         return;
@@ -66,7 +56,7 @@ const ContactForm = () => {
 
       await emailjs.send(serviceId, templateId, templateParams, publicKey)
 
-      // Use the global notification
+      // Use the Zustand store action to show the notification
       showNotification(t.emailSentSuccess || "Message sent successfully!", "success")
 
       setFormData({
@@ -76,19 +66,11 @@ const ContactForm = () => {
       })
     } catch (error) {
       console.error("Error sending message:", error)
-      // Use the global notification
       showNotification(t.emailSentError || "Error sending message. Please try again.", "error")
     } finally {
       setIsLoading(false)
     }
   }
-
-  // This function is no longer needed here as the provider handles it
-  /*
-  const closeNotification = () => {
-    setNotification((prevState) => ({ ...prevState, isVisible: false }))
-  }
-  */
 
   return (
     <section className="py-16 md:py-24 bg-background">
@@ -149,8 +131,6 @@ const ContactForm = () => {
             )}
           </Button>
         </form>
-
-        {/* The Notification component is now rendered by the Provider */}
       </div>
     </section>
   )
