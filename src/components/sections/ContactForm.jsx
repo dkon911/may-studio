@@ -1,24 +1,34 @@
 import React, { useState } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useNotification } from "@/contexts/NotificationContext" // Import the hook
 import { translations } from "@/i18n"
 import emailjs from "@emailjs/browser"
-import Notification from "@/components/Notification"
+// Notification component is no longer needed here
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Loader2 } from "lucide-react"
 
 const ContactForm = () => {
   const { language } = useLanguage()
   const t = translations[language]
+  const { showNotification } = useNotification() // Use the notification hook
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
   })
-
+  const [isLoading, setIsLoading] = useState(false)
+  // Remove local notification state
+  /*
   const [notification, setNotification] = useState({
     isVisible: false,
     message: "",
     type: "success",
   })
+  */
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -30,13 +40,21 @@ const ContactForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setIsLoading(true)
+
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+    if (!serviceId || !templateId || !publicKey) {
+        console.error("EmailJS environment variables are not set!");
+        // Use the global notification
+        showNotification("Email configuration is missing. Please contact support.", "error");
+        setIsLoading(false);
+        return;
+    }
 
     try {
-      // Replace these values with your EmailJS account details
-      const serviceId = 'service_73dhknp';
-      const templateId = 'template_ckis47t';
-      const publicKey = 'gwK4ALM44kQQkt5fB';
-
       const templateParams = {
         from_name: formData.name,
         reply_to: formData.email,
@@ -48,11 +66,8 @@ const ContactForm = () => {
 
       await emailjs.send(serviceId, templateId, templateParams, publicKey)
 
-      setNotification({
-        isVisible: true,
-        message: t.emailSentSuccess || "Message sent successfully!",
-        type: "success",
-      })
+      // Use the global notification
+      showNotification(t.emailSentSuccess || "Message sent successfully!", "success")
 
       setFormData({
         name: "",
@@ -61,83 +76,82 @@ const ContactForm = () => {
       })
     } catch (error) {
       console.error("Error sending message:", error)
-      setNotification({
-        isVisible: true,
-        message: t.emailSentError || "Error sending message. Please try again.",
-        type: "error",
-      })
+      // Use the global notification
+      showNotification(t.emailSentError || "Error sending message. Please try again.", "error")
+    } finally {
+      setIsLoading(false)
     }
   }
 
+  // This function is no longer needed here as the provider handles it
+  /*
   const closeNotification = () => {
     setNotification((prevState) => ({ ...prevState, isVisible: false }))
   }
+  */
 
   return (
-    <section className="py-8 md:py-12">
+    <section className="py-16 md:py-24 bg-background">
       <div className="container mx-auto px-4">
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8">{t.contactUs}</h2>
+        <h2 className="text-3xl md:text-4xl font-serif font-bold text-center mb-8 md:mb-12">{t.contactUs}</h2>
 
-        <form className="max-w-lg mx-auto" onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="name" className="block text-gray-700 font-bold mb-2">
-              {t.name}
-            </label>
-            <input
-              type="text"
+        <form className="max-w-xl mx-auto space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-2">
+            <Label htmlFor="name">{t.yourName}</Label>
+            <Input
               id="name"
               name="name"
+              type="text"
+              placeholder={t.yourNamePlaceholder}
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              className="text-base md:text-sm"
+              disabled={isLoading}
             />
           </div>
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 font-bold mb-2">
-              {t.email}
-            </label>
-            <input
-              type="email"
+          <div className="space-y-2">
+            <Label htmlFor="email">{t.yourEmail}</Label>
+            <Input
               id="email"
               name="email"
+              type="email"
+              placeholder={t.yourEmailPlaceholder}
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              className="text-base md:text-sm"
+              disabled={isLoading}
             />
           </div>
-          <div className="mb-6">
-            <label htmlFor="message" className="block text-gray-700 font-bold mb-2">
-              {t.message}
-            </label>
-            <textarea
+          <div className="space-y-2">
+            <Label htmlFor="message">{t.yourMessage}</Label>
+            <Textarea
               id="message"
               name="message"
-              rows="4"
+              placeholder={t.yourMessagePlaceholder}
               value={formData.message}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
-            ></textarea>
+              className="min-h-[120px] text-base md:text-sm"
+              disabled={isLoading}
+            />
           </div>
-          <div className="text-center">
-            <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-300"
-            >
-              {t.sendMessage}
-            </button>
-          </div>
+
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {t.sending}
+              </>
+            ) : (
+              t.sendMessage
+            )}
+          </Button>
         </form>
+
+        {/* The Notification component is now rendered by the Provider */}
       </div>
-      {notification.isVisible && (
-        <Notification
-          message={notification.message}
-          type={notification.type}
-          onClose={closeNotification}
-        />
-      )}
     </section>
   )
 }
