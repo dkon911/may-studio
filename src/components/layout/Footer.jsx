@@ -15,7 +15,7 @@ const Footer = () => {
             <h3 className="text-xl md:text-2xl font-bold mb-2">{t.contactUs}</h3>
             <p className="text-sm md:text-base">Vạn Lăng, Cẩm Thanh, TP. Hội An, Quảng Nam</p>
             <p className="text-sm md:text-base">maystudio.hoian@gmail.com</p>
-            <p className="text-sm md:text-base">+84 905 030 228</p>
+            <p className="text-sm md:text-base">(+84) 905 030 228</p>
           </div>
           <div className="w-full md:w-1/3 text-center mb-6 md:mb-0">
             <ul className="flex justify-center space-x-4">
