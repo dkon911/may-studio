@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react"
 import { getImagesFromDrive } from "@/services/googleDrive"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { translations } from "@/i18n"
-import { Loader2 } from "lucide-react" // Loading spinner icon
+import { Loader } from "lucide-react" // Loading spinner icon
 import { useTranslation } from "react-i18next"
 
 const PortfolioPage = () => {
@@ -27,13 +27,13 @@ const PortfolioPage = () => {
     <div className="py-12 md:py-16">
       <div className="container mx-auto px-4">
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-playfair font-bold text-center mb-12">
-          {i18nT("portfolio")}
+          {t.portfolio}
         </h1>
 
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            <p className="ml-4 text-lg">{t.loadingImages}...</p>
+            <Loader className="h-12 w-12 animate-spin text-primary" />
+            <p className="ml-4 text-lg">{t.loadingImages}</p>
           </div>
         ) : images.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
