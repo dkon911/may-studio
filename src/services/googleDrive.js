@@ -17,8 +17,8 @@ export const getImagesFromDrive = async () => {
     return [];
   }
 
-  // Updated fields to include thumbnailLink for a reliable image source
-  const url = `${BASE_URL}?q='${FOLDER_ID}'+in+parents+and+mimeType+contains+'image/'&key=${API_KEY}&fields=files(id,name,thumbnailLink)`;
+  // We only need the file ID and name to construct the direct access URL.
+  const url = `${BASE_URL}?q='${FOLDER_ID}'+in+parents+and+mimeType+contains+'image/'&key=${API_KEY}&fields=files(id,name)`;
 
   try {
     const response = await axios.get(url);
@@ -26,13 +26,24 @@ export const getImagesFromDrive = async () => {
 
     // Transform the file data to a more usable format
     const imageList = files.map(file => {
-      // The thumbnailLink is a reliable source for the image.
-      // We can remove the size parameter (=s220) to get a larger version.
-      const imageUrl = file.thumbnailLink ? file.thumbnailLink.replace(/=s\d+$/, "=s1600") : '';
+      // Use a direct link to the image content instead of thumbnailLink for reliability
+      const imageUrl = `https://lh3.googleusercontent.com/d/${file.id}=w1600`;
+
+      // Extract category from filename (e.g., "Category_ImageName.jpg")
+      const fileNameParts = file.name.split('_');
+      const category = fileNameParts.length > 1 ? fileNameParts[0] : 'General';
+      
+      // Clean up the display name
+      const displayName = (fileNameParts.length > 1 
+        ? fileNameParts.slice(1).join('_') 
+        : file.name)
+        .replace(/\.(jpg|jpeg|png|gif)$/i, '');
+
       return {
         id: file.id,
-        name: file.name,
+        name: displayName,
         url: imageUrl,
+        category: category,
       };
     });
 
