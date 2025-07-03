@@ -5,20 +5,21 @@ const FOLDER_ID = import.meta.env.VITE_GOOGLE_DRIVE_FOLDER_ID;
 
 const BASE_URL = 'https://www.googleapis.com/drive/v3/files';
 
-// Simple in-memory cache
-let cachedImages = null;
+// Simple in-memory cache to store the full list of images
+let allImagesCache = null;
 
 /**
- * Fetches a list of image files from a specific Google Drive folder.
+ * Fetches ALL image files from a specific Google Drive folder by automatically 
+ * handling pagination behind the scenes.
  * The folder must be shared publicly ("Anyone with the link").
  *
- * @returns {Promise<Array<{id: string, name: string, url: string}>>} A promise that resolves to an array of image objects.
+ * @returns {Promise<Array<{id: string, name: string, url: string, category: string}>>} 
+ *          A promise that resolves to a single array containing all image objects.
  */
-
-export const getImagesFromDrive = async () => {
-  // If we have cached data, return it immediately
-  if (cachedImages) {
-    return cachedImages;
+export const getAllImagesFromDrive = async () => {
+  // If we have cached data, return it immediately to avoid re-fetching
+  if (allImagesCache) {
+    return allImagesCache;
   }
 
   if (!API_KEY || !FOLDER_ID) {
@@ -26,23 +27,28 @@ export const getImagesFromDrive = async () => {
     return [];
   }
 
-  // We only need the file ID and name to construct the direct access URL.
-  const url = `${BASE_URL}?q='${FOLDER_ID}'+in+parents+and+mimeType+contains+'image/'&key=${API_KEY}&fields=files(id,name)`;
+  let allFiles = [];
+  let pageToken = null;
 
   try {
-    const response = await axios.get(url);
-    const files = response.data.files || [];
+    do {
+      const url = `${BASE_URL}?q='${FOLDER_ID}'+in+parents+and+mimeType+contains+'image/'&key=${API_KEY}&fields=files(id,name),nextPageToken&pageSize=100&orderBy=createdTime desc` + (pageToken ? `&pageToken=${pageToken}` : '');
+      
+      const response = await axios.get(url);
+      const { files, nextPageToken } = response.data;
 
-    // Transform the file data to a more usable format
-    const imageList = files.map(file => {
-      // Use a direct link to the image content instead of thumbnailLink for reliability
+      if (files) {
+        allFiles.push(...files);
+      }
+
+      pageToken = nextPageToken;
+
+    } while (pageToken);
+
+    const imageList = allFiles.map(file => {
       const imageUrl = `https://lh3.googleusercontent.com/d/${file.id}=w1600`;
-
-      // Extract category from filename (e.g., "Category_ImageName.jpg")
       const fileNameParts = file.name.split('_');
       const category = fileNameParts.length > 1 ? fileNameParts[0] : 'General';
-      
-      // Clean up the display name
       const displayName = (fileNameParts.length > 1 
         ? fileNameParts.slice(1).join('_') 
         : file.name)
@@ -56,17 +62,16 @@ export const getImagesFromDrive = async () => {
       };
     });
 
-    // Cache the successful response
-    cachedImages = imageList;
+    // Cache the final list
+    allImagesCache = imageList;
     return imageList;
+
   } catch (error) {
-    console.error('Error fetching images from Google Drive:', error.response ? error.response.data : error.message);
-    // Handle specific API errors, e.g., API key invalid, folder not found, etc.
+    console.error('Error fetching all images from Google Drive:', error.response ? error.response.data : error.message);
     if (error.response && error.response.data.error) {
       const apiError = error.response.data.error;
       console.error(`API Error (${apiError.code}): ${apiError.message}`);
-      // You could show a specific message to the user here
     }
-    return [];
+    return []; // Return empty array on error
   }
 };

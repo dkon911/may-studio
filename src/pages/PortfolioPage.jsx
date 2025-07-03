@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react"
-import { getImagesFromDrive } from "@/services/googleDrive"
+import { getAllImagesFromDrive } from "@/services/googleDrive" 
 import { useLanguage } from "@/contexts/LanguageContext"
 import { translations } from "@/i18n"
-import { Loader } from "lucide-react" // Loading spinner icon
+import { Loader } from "lucide-react" 
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
+import Pagination from "@/components/sections/Pagination"
 import { LazyLoadImage } from "react-lazy-load-image-component"
 import "react-lazy-load-image-component/src/effects/blur.css"
+import usePagination from "@/hooks/usePagination" // Import the custom hook
 
 const PortfolioPage = () => {
   const { language } = useLanguage()
@@ -18,13 +20,13 @@ const PortfolioPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All")
 
   useEffect(() => {
-    const fetchImages = async () => {
+    const fetchAllImages = async () => {
       setLoading(true)
       try {
-        const imageList = await getImagesFromDrive()
+        const imageList = await getAllImagesFromDrive() // Use the new simplified function
         setImages(imageList)
 
-        // Extract unique categories from the image list
+        // Extract unique categories from the full image list
         const uniqueCategories = [
           "All",
           ...new Set(imageList.map((image) => image.category)),
@@ -32,19 +34,25 @@ const PortfolioPage = () => {
         setCategories(uniqueCategories)
       } catch (error) {
         console.error("Failed to fetch images:", error)
-        // Optionally, set an error state to show a message to the user
       } finally {
         setLoading(false)
       }
     }
 
-    fetchImages()
-  }, [])
+    fetchAllImages()
+  }, []) // Runs only once on component mount
 
+  // 1. Filter images by the selected category first
   const filteredImages =
     selectedCategory === "All"
       ? images
       : images.filter((image) => image.category === selectedCategory)
+
+  // 2. Use the custom hook to manage pagination logic for the filtered images
+  const { currentPage, totalPages, handlePageChange, currentItems } = usePagination(
+    filteredImages,
+    8, // 8 images per page
+  )
 
   return (
     <div className="py-12 md:py-16">
@@ -74,27 +82,35 @@ const PortfolioPage = () => {
             <Loader className="h-12 w-12 animate-spin text-primary" />
             <p className="ml-4 text-lg">{t.loadingImages}</p>
           </div>
-        ) : filteredImages.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {filteredImages.map((image) => (
-              <div
-                key={image.id}
-                className="relative overflow-hidden group rounded-lg shadow-md"
-              >
-                <LazyLoadImage
-                  alt={image.name}
-                  src={image.url}
-                  effect="blur"
-                  className="w-full h-64 object-cover transition-transform duration-300 transform group-hover:scale-110"
-                  wrapperClassName="w-full h-full"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  {/* Future feature: Open a lightbox/modal on click */}
-                  <p className="text-white text-center p-2">{image.name}</p>
+        ) : currentItems.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {currentItems.map((image) => (
+                <div
+                  key={image.id}
+                  className="relative overflow-hidden group rounded-lg shadow-md"
+                >
+                  <LazyLoadImage
+                    alt={image.name}
+                    src={image.url}
+                    effect="blur"
+                    className="w-full h-64 object-cover transition-transform duration-300 transform group-hover:scale-110"
+                    wrapperClassName="w-full h-full"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    {/* Future feature: Open a lightbox/modal on click */}
+                    <p className="text-white text-center p-2">{image.name}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </>
         ) : (
           <div className="text-center py-16">
             <p className="text-xl text-muted-foreground">
