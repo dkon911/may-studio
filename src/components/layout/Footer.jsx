@@ -28,13 +28,14 @@ const Footer = () => {
               <li>
                 <a
                   href="https://www.facebook.com/Duan.Maystudio.Hoian"
+                  target="_blank"
                   className="hover:text-gray-400 transition-colors"
                 >
                   <FaFacebook size={24} />
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-gray-400 transition-colors">
+                <a href="https://www.instagram.com/duanngo88/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">
                   <FaInstagram size={24} />
                 </a>
               </li>
@@ -50,7 +51,7 @@ const Footer = () => {
           </div>
           <div className="w-full md:w-1/3 text-center md:text-right">
             <h3 className="text-xl md:text-2xl font-bold mb-2">
-              {t.contactUs}
+              Contact Us
             </h3>
             <p className="text-sm md:text-base">
               Vạn Lăng, Cẩm Thanh, TP. Hội An, Quảng Nam
