@@ -5,13 +5,22 @@ const FOLDER_ID = import.meta.env.VITE_GOOGLE_DRIVE_FOLDER_ID;
 
 const BASE_URL = 'https://www.googleapis.com/drive/v3/files';
 
+// Simple in-memory cache
+let cachedImages = null;
+
 /**
  * Fetches a list of image files from a specific Google Drive folder.
  * The folder must be shared publicly ("Anyone with the link").
  *
  * @returns {Promise<Array<{id: string, name: string, url: string}>>} A promise that resolves to an array of image objects.
  */
+
 export const getImagesFromDrive = async () => {
+  // If we have cached data, return it immediately
+  if (cachedImages) {
+    return cachedImages;
+  }
+
   if (!API_KEY || !FOLDER_ID) {
     console.error('Google Drive API Key or Folder ID is not defined in .env file.');
     return [];
@@ -47,6 +56,8 @@ export const getImagesFromDrive = async () => {
       };
     });
 
+    // Cache the successful response
+    cachedImages = imageList;
     return imageList;
   } catch (error) {
     console.error('Error fetching images from Google Drive:', error.response ? error.response.data : error.message);
