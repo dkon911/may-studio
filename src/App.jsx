@@ -23,22 +23,38 @@ function AppContent() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <Header onMenuOpen={() => setIsMobileMenuOpen(true)} navLinks={navLinks} />
-      <main className="flex-grow">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/portfolio" element={<PortfolioPage />} />
-        </Routes>
-      </main>
-      <Footer />
-      {/* Render MobileMenu at the top level */}
-      <MobileMenu
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-        navLinks={navLinks}
+    <div className="min-h-screen w-full relative bg-white">
+      {/* Teal Glow Right */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+        backgroundImage: `
+          radial-gradient(circle at 50% 100%, rgba(253, 224, 71, 0.4) 0%, transparent 60%),
+          radial-gradient(circle at 50% 100%, rgba(251, 191, 36, 0.4) 0%, transparent 70%),
+          radial-gradient(circle at 50% 100%, rgba(244, 114, 182, 0.5) 0%, transparent 80%)
+        `,
+      }}
+
       />
+      
+      {/* Main App Content */}
+      <div className="min-h-screen flex flex-col relative z-10">
+        <Header onMenuOpen={() => setIsMobileMenuOpen(true)} navLinks={navLinks} />
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/portfolio" element={<PortfolioPage />} />
+          </Routes>
+        </main>
+        <Footer />
+        {/* Render MobileMenu at the top level */}
+        <MobileMenu
+          isOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
+          navLinks={navLinks}
+        />
+      </div>
     </div>
   );
 }

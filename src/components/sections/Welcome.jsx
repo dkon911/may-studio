@@ -27,21 +27,21 @@ const Welcome = () => {
           <Slider {...settings}>
             <div>
               <img
-                src="/src/assets/slider/slide1.png"
+                src="/slider/slide1.png"
                 alt="Slide 1"
                 className="w-full h-64 md:h-96 object-cover rounded"
               />
             </div>
             <div>
               <img
-                src="/src/assets/slider/slide2.png"
+                src="/slider/slide2.png"
                 alt="Slide 2"
                 className="w-full h-64 md:h-96 object-cover rounded"
               />
             </div>
             <div>
               <img
-                src="/src/assets/slider/slide3.png"
+                src="/slider/slide3.png"
                 alt="Slide 3"
                 className="w-full h-64 md:h-96 object-cover rounded"
               />
