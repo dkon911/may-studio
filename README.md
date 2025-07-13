@@ -2,7 +2,7 @@
 
 ### Các bước setup
 1. **Cài XAMPP**:
-   - Tải file `.exe` từ link trên, chạy và cài vào thư mục `C:\xampp`.
+   - Tải file `.exe` từ link trên, chạy và cài vào thư mục `C:\xampp\htdocs`.
    - Mở `C:\xampp\xampp-control.exe`, nhấn **Start** cho Apache và MySQL (sẽ chuyển sang màu xanh).
 
 2. **Tạo thư mục dự án**:
