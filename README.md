@@ -1,4 +1,4 @@
-# Hướng Dẫn Setup và cho course work 3
+# Hướng Dẫn Setup course work 3
 
 ### Các bước setup
 1. **Cài XAMPP**:
